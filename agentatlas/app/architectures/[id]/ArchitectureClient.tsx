@@ -3,11 +3,19 @@ import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { getArchitecture, architectures } from "@/lib/architectures";
-import { PART_LABELS, PART_COLORS } from "@/lib/types";
+import { PART_LABELS, PART_COLORS, A_COMPONENT_LABELS, A_COMPONENT_COLORS, NodeType } from "@/lib/types";
 import StepController from "@/components/StepController";
 import CodePanel from "@/components/CodePanel";
 
 const FlowDiagram = dynamic(() => import("@/components/FlowDiagram"), { ssr: false });
+
+const A_COMPONENTS: { type: NodeType; icon: string; desc: string }[] = [
+  { type: "a1input",        icon: "📡", desc: "Perceives environment" },
+  { type: "a2decision",     icon: "🧠", desc: "Maps state → action" },
+  { type: "a3memory",       icon: "🗄️", desc: "Stores beliefs & history" },
+  { type: "a4coordination", icon: "🔄", desc: "Multi-agent routing" },
+  { type: "a5output",       icon: "⚡", desc: "Executes actions" },
+];
 
 export default function ArchitectureClient({ arch }: { arch: NonNullable<ReturnType<typeof getArchitecture>> }) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -73,6 +81,14 @@ export default function ArchitectureClient({ arch }: { arch: NonNullable<ReturnT
           <p className="text-slate-800 text-sm">{arch.keyDifferentiator}</p>
         </div>
 
+        {/* Conceptual Insight */}
+        {arch.conceptualInsight && (
+          <div className="mb-6 rounded-xl border-l-4 bg-violet-50 border-violet-400 px-5 py-4">
+            <div className="text-xs font-bold text-violet-500 uppercase tracking-wider mb-1">Conceptual Insight</div>
+            <p className="text-slate-800 text-sm">{arch.conceptualInsight}</p>
+          </div>
+        )}
+
         {/* Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
@@ -86,6 +102,36 @@ export default function ArchitectureClient({ arch }: { arch: NonNullable<ReturnT
               <div className="text-sm font-semibold text-slate-700 mt-0.5 capitalize">{m.value}</div>
             </div>
           ))}
+        </div>
+
+        {/* A1-A5 Component Legend */}
+        <div className="mb-6">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+            Agent Component Vocabulary
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {A_COMPONENTS.map(({ type, icon, desc }) => {
+              const colors = A_COMPONENT_COLORS[type];
+              const label = A_COMPONENT_LABELS[type];
+              const isUsed = arch.nodes.some((n) => n.type === type);
+              return (
+                <div
+                  key={type}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-xs font-medium transition-opacity"
+                  style={{
+                    backgroundColor: colors.bg,
+                    borderColor: colors.border,
+                    color: colors.text,
+                    opacity: isUsed ? 1 : 0.35,
+                  }}
+                >
+                  <span>{icon}</span>
+                  <span className="font-bold">{label}</span>
+                  <span className="hidden sm:inline text-[10px] opacity-70">— {desc}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Main layout: diagram + code panel */}
@@ -140,6 +186,71 @@ export default function ArchitectureClient({ arch }: { arch: NonNullable<ReturnT
             <p className="text-sm text-slate-700 font-mono whitespace-pre-wrap text-xs">{arch.demoOutput}</p>
           </div>
         </div>
+
+        {/* When to Use */}
+        {arch.whenToUse && arch.whenToUse.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-slate-800 mb-3">When to Use This Pattern</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {arch.whenToUse.map((item, i) => (
+                <div key={i} className="bg-white rounded-xl border border-slate-200 p-4">
+                  <div className="text-sm font-semibold text-slate-800 mb-2">{item.useCase}</div>
+                  <p className="text-xs text-slate-500 leading-relaxed">{item.reason}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Strengths & Weaknesses */}
+        {(arch.strengths?.length > 0 || arch.weaknesses?.length > 0) && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-slate-800 mb-3">Strengths & Weaknesses</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-emerald-50 rounded-xl border border-emerald-200 p-4">
+                <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3">Strengths</div>
+                <ul className="space-y-2">
+                  {arch.strengths.map((s, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                      <span className="text-emerald-500 mt-0.5 flex-shrink-0">✓</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="bg-red-50 rounded-xl border border-red-200 p-4">
+                <div className="text-xs font-bold text-red-500 uppercase tracking-wider mb-3">Weaknesses</div>
+                <ul className="space-y-2">
+                  {arch.weaknesses.map((w, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                      <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+                      <span>{w}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Compared To */}
+        {arch.comparedTo && arch.comparedTo.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-slate-800 mb-3">Compared to Similar Architectures</h2>
+            <div className="space-y-3">
+              {arch.comparedTo.map((item, i) => (
+                <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 flex gap-4 items-start">
+                  <div className="flex-shrink-0">
+                    <span className="inline-block text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
+                      vs {item.name}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed">{item.insight}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <div className="flex justify-between items-center border-t border-slate-200 pt-6">

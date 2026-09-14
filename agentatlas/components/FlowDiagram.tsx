@@ -11,25 +11,23 @@ import {
 import "@xyflow/react/dist/style.css";
 import { Architecture, FlowNode, FlowEdge } from "@/lib/types";
 import {
-  LLMNode,
-  ToolNode as ToolNodeComponent,
-  MemoryNode,
-  HumanNode,
-  RuleNode,
-  ControllerNode,
+  A1InputNode,
+  A2DecisionNode,
+  A3MemoryNode,
+  A4CoordinationNode,
+  A5OutputNode,
   StartNode,
   EndNode,
 } from "./nodes/CustomNodes";
 
 const nodeTypes = {
-  llm: LLMNode,
-  tool: ToolNodeComponent,
-  memory: MemoryNode,
-  human: HumanNode,
-  rule: RuleNode,
-  controller: ControllerNode,
-  start: StartNode,
-  end: EndNode,
+  a1input:        A1InputNode,
+  a2decision:     A2DecisionNode,
+  a3memory:       A3MemoryNode,
+  a4coordination: A4CoordinationNode,
+  a5output:       A5OutputNode,
+  start:          StartNode,
+  end:            EndNode,
 };
 
 interface Props {
@@ -58,8 +56,12 @@ function toReactFlowEdges(edges: FlowEdge[]): Edge[] {
     source: e.source,
     target: e.target,
     label: e.label,
-    animated: e.conditional,
-    style: { stroke: e.conditional ? "#94a3b8" : "#475569", strokeWidth: 1.5 },
+    type: "smoothstep",
+    animated: !!e.conditional,
+    style: {
+      stroke: e.conditional ? "#94a3b8" : "#475569",
+      strokeWidth: 1.5,
+    },
     labelStyle: { fontSize: 10, fill: "#64748b" },
     markerEnd: { type: MarkerType.ArrowClosed, color: "#475569" },
   }));
@@ -79,7 +81,7 @@ export default function FlowDiagram({ architecture, activeNodeId, onNodeClick }:
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
+        fitViewOptions={{ padding: 0.25 }}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={true}
