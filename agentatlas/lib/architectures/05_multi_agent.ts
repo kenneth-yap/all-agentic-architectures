@@ -16,6 +16,13 @@ export const multiAgent: Architecture = {
   color: "#10b981",
   paradigm: "mas",
   conceptualInsight: "Parallel expertise encoded in prompts. Unlike calling one LLM four times, each agent has its own system prompt, context window, and persona. The writer synthesizes divergent specialist views that a single LLM would tend to average away.",
+  a1a5Profile: {
+    a1input: "User task — market analysis request passed to all specialist agents",
+    a2decision: "Each specialist LLM runs with its own persona (News, Technical, Financial, Writer)",
+    a3memory: "Message passing — each agent's output becomes the next agent's input context",
+    a4coordination: "Fixed sequential orchestration — hardcoded pipeline order (News→Technical→Financial→Writer)",
+    a5output: "Aggregated final report produced by the Writer agent synthesizing all specialist reports",
+  },
   whenToUse: [
     { useCase: "Tasks requiring distinct expert perspectives", reason: "Different personas surface different aspects of the same problem — news, technical, and financial lenses capture orthogonal signals." },
     { useCase: "Long-form documents with sectional ownership", reason: "Each agent owns a section; the writer aggregates without re-reading all prior sections." },
@@ -38,12 +45,12 @@ export const multiAgent: Architecture = {
     { name: "Ensemble", insight: "Multi-Agent runs agents sequentially (each sees prior output); Ensemble runs all agents in parallel (no cross-contamination) then synthesizes." },
   ],
   nodes: [
-    { id: "start",     type: "start",     label: "START",              x: 200, y: 20 },
-    { id: "news",      type: "a2decision", label: "News\nAnalyst",      x: 200, y: 155, description: "A2 (Decision): searches for and summarizes recent news coverage" },
-    { id: "technical", type: "a2decision", label: "Technical\nAnalyst", x: 200, y: 275, description: "A2 (Decision): analyzes technical fundamentals, products, and competitive position" },
-    { id: "financial", type: "a2decision", label: "Financial\nAnalyst", x: 200, y: 395, description: "A2 (Decision): evaluates earnings, valuation, and financial health" },
-    { id: "writer",    type: "a2decision", label: "Report\nWriter",     x: 200, y: 515, description: "A2 (Decision): synthesizes all three specialist reports into a final structured document" },
-    { id: "end",       type: "end",        label: "END",                x: 200, y: 625 },
+    { id: "start",     type: "start", label: "START",              x: 200, y: 20 },
+    { id: "news",      type: "llm",   label: "News\nAnalyst",      x: 200, y: 155, description: "LLM (News Analyst persona): searches for and summarizes recent news coverage" },
+    { id: "technical", type: "llm",   label: "Technical\nAnalyst", x: 200, y: 275, description: "LLM (Technical Analyst persona): analyzes technical fundamentals, products, and competitive position" },
+    { id: "financial", type: "llm",   label: "Financial\nAnalyst", x: 200, y: 395, description: "LLM (Financial Analyst persona): evaluates earnings, valuation, and financial health" },
+    { id: "writer",    type: "llm",   label: "Report\nWriter",     x: 200, y: 515, description: "LLM (Writer persona): synthesizes all three specialist reports into a final structured document" },
+    { id: "end",       type: "end",   label: "END",                x: 200, y: 625 },
   ],
   edges: [
     { id: "e1", source: "start",     target: "news" },

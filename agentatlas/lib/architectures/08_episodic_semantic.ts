@@ -16,6 +16,13 @@ export const episodicSemantic: Architecture = {
   color: "#f59e0b",
   paradigm: "bdi",
   conceptualInsight: "Dual memory mimics human cognition: episodic (what happened) and semantic (what's true). FAISS finds 'similar situations'; Neo4j finds 'structural relationships'. Neither alone suffices — similarity search can't do multi-hop graph traversal, and graph queries can't surface fuzzy contextual matches.",
+  a1a5Profile: {
+    a1input: "User query — conversation turn with implicit user profile and history",
+    a2decision: "LLM generator uses both retrieved episodic context and semantic facts to personalize its response",
+    a3memory: "Episodic (FAISS vector store for past turns) + Semantic (Neo4j knowledge graph for user facts) — both persistent across sessions",
+    a4coordination: "None — single-agent with external memory stores; no inter-agent routing",
+    a5output: "Personalized response + automatic update to both FAISS and Neo4j memory stores",
+  },
   whenToUse: [
     { useCase: "Long-running personal assistants", reason: "Episodic memory preserves conversation history across sessions; semantic memory preserves user facts (goals, preferences, relationships)." },
     { useCase: "Tasks requiring both contextual recall and structured facts", reason: "FAISS handles 'what was discussed'; Neo4j handles 'who is related to whom'." },
@@ -37,11 +44,11 @@ export const episodicSemantic: Architecture = {
     { name: "Graph Memory", insight: "Episodic+Semantic uses FAISS for episodic recall + Neo4j for structured facts; Graph Memory uses Neo4j alone as the primary reasoning substrate for multi-hop traversal over pre-ingested documents." },
   ],
   nodes: [
-    { id: "start",    type: "start",     label: "START",           x: 200, y: 20 },
-    { id: "retrieve", type: "a3memory",   label: "Retrieve\nMemory",x: 200, y: 160, description: "A3 (Memory): queries FAISS (similarity) and Neo4j (Cypher) with the current input" },
-    { id: "generate", type: "a2decision", label: "Generate\nResponse",x: 200, y: 300, description: "A2 (Decision): answers using current input + retrieved memory context" },
-    { id: "update",   type: "a3memory",   label: "Update\nMemory",  x: 200, y: 440, description: "A3 (Memory): summarizes turn into FAISS; extracts entities/relations into Neo4j" },
-    { id: "end",      type: "end",        label: "END",             x: 200, y: 560 },
+    { id: "start",    type: "start",  label: "START",            x: 200, y: 20 },
+    { id: "retrieve", type: "memory", label: "Retrieve\nMemory", x: 200, y: 160, description: "Memory: queries FAISS (similarity) and Neo4j (Cypher) with the current input" },
+    { id: "generate", type: "llm",    label: "Generate\nResponse",x: 200, y: 300, description: "LLM: answers using current input + retrieved memory context" },
+    { id: "update",   type: "memory", label: "Update\nMemory",   x: 200, y: 440, description: "Memory: summarizes turn into FAISS; extracts entities/relations into Neo4j" },
+    { id: "end",      type: "end",    label: "END",              x: 200, y: 560 },
   ],
   edges: [
     { id: "e1", source: "start",    target: "retrieve" },

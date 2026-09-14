@@ -16,6 +16,13 @@ export const react: Architecture = {
   color: "#6366f1",
   paradigm: "deliberative",
   conceptualInsight: "Makes the chain of thought visible and grounded. Each 'Thought' step is a hypothesis; each 'Observation' confirms or refutes it. The scratchpad is a persistent audit trail, not just working memory. The architecture is the loop: the edge from Tool back to Agent is what makes ReAct different from Tool Use.",
+  a1a5Profile: {
+    a1input: "User query — natural language question requiring multi-hop reasoning",
+    a2decision: "LLM Reason+Act loop: explicit Thought→Action→Observation cycle repeated until goal is met",
+    a3memory: "Scratchpad (full Thought/Action/Observation trace accumulated in message history)",
+    a4coordination: "None — single-agent, no inter-agent routing",
+    a5output: "Tool execution at each Action step → final synthesized answer when no more actions needed",
+  },
   whenToUse: [
     { useCase: "Complex multi-hop reasoning with tools", reason: "The explicit Thought→Action→Observation cycle keeps multi-step reasoning on track." },
     { useCase: "Tasks needing mid-course correction", reason: "Tool observations can redirect the agent's next thought — it doesn't need to plan everything upfront." },
@@ -38,10 +45,10 @@ export const react: Architecture = {
     { name: "Planning", insight: "ReAct is reactive — it decides the next step after each observation. Planning creates the full step list upfront before any action." },
   ],
   nodes: [
-    { id: "start", type: "start",     label: "START",           x: 200, y: 20 },
-    { id: "agent", type: "a2decision", label: "ReAct\nReasoner", x: 200, y: 160, description: "A2 (Decision): Reasons about what to do next based on all prior observations in the scratchpad" },
-    { id: "tool",  type: "a5output",   label: "Tool\nExecution", x: 440, y: 160, description: "A5 (Output): executes the tool call and feeds result back to Agent as an Observation" },
-    { id: "end",   type: "end",        label: "END",             x: 200, y: 300 },
+    { id: "start", type: "start", label: "START",           x: 200, y: 20 },
+    { id: "agent", type: "llm",   label: "ReAct\nReasoner", x: 200, y: 160, description: "LLM: reasons about what to do next based on all prior observations in the scratchpad" },
+    { id: "tool",  type: "tool",  label: "Tool\nExecution", x: 440, y: 160, description: "Tool: executes the tool call and feeds result back to Agent as an Observation" },
+    { id: "end",   type: "end",   label: "END",             x: 200, y: 300 },
   ],
   edges: [
     { id: "e1", source: "start", target: "agent" },

@@ -16,6 +16,13 @@ export const metaController: Architecture = {
   color: "#10b981",
   paradigm: "deliberative",
   conceptualInsight: "Intelligent routing: the meta-LLM reads the task and selects the right specialist. The key insight is that different models have different cost/quality trade-offs — a simple question doesn't need a premium model. This is model routing at inference time.",
+  a1a5Profile: {
+    a1input: "Multi-domain task — any user query that may belong to code, research, or general domains",
+    a2decision: "Meta-LLM selects the right specialist; chosen specialist LLM fully solves the task",
+    a3memory: "None — stateless per-request routing; no cross-request memory",
+    a4coordination: "LLM meta-controller dispatches to exactly one specialist per task (one-shot, no loop)",
+    a5output: "Specialist's final response — code, research report, or general answer",
+  },
   whenToUse: [
     { useCase: "Multi-domain applications with distinct expert agents", reason: "Route legal queries to a legal specialist, code to a code specialist — reducing errors from over-generalization." },
     { useCase: "Cost optimization across model tiers", reason: "Route simple tasks to cheaper models, complex tasks to powerful ones — same architecture, different backends." },
@@ -38,12 +45,12 @@ export const metaController: Architecture = {
     { name: "Blackboard", insight: "Meta-Controller dispatches once and is done; Blackboard's controller loops after each agent, re-reading shared state to decide who goes next." },
   ],
   nodes: [
-    { id: "start",      type: "start",         label: "START",              x: 250, y: 20 },
-    { id: "controller", type: "a4coordination", label: "Meta\nController",   x: 250, y: 150, description: "A4 (Coordination): reads the query and picks the best specialist based on task analysis" },
-    { id: "generalist", type: "a2decision",     label: "Generalist\nAgent",  x: 80,  y: 300, description: "A2 (Decision): for casual conversation and general knowledge questions" },
-    { id: "researcher", type: "a2decision",     label: "Researcher\nAgent",  x: 250, y: 300, description: "A2 (Decision): for current events requiring web search (Tavily)" },
-    { id: "coder",      type: "a2decision",     label: "Coder\nAgent",       x: 420, y: 300, description: "A2 (Decision): for Python code generation and technical problems" },
-    { id: "end",        type: "end",            label: "END",                x: 250, y: 430 },
+    { id: "start",      type: "start",      label: "START",              x: 250, y: 20 },
+    { id: "controller", type: "controller", label: "Meta\nController",   x: 250, y: 150, description: "Controller LLM: reads the query and picks the best specialist based on task analysis" },
+    { id: "generalist", type: "llm",        label: "Generalist\nAgent",  x: 80,  y: 300, description: "LLM: for casual conversation and general knowledge questions" },
+    { id: "researcher", type: "llm",        label: "Researcher\nAgent",  x: 250, y: 300, description: "LLM: for current events requiring web search (Tavily)" },
+    { id: "coder",      type: "llm",        label: "Coder\nAgent",       x: 420, y: 300, description: "LLM: for Python code generation and technical problems" },
+    { id: "end",        type: "end",        label: "END",                x: 250, y: 430 },
   ],
   edges: [
     { id: "e1", source: "start",      target: "controller" },

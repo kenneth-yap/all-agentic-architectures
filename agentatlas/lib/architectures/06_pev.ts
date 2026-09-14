@@ -16,6 +16,13 @@ export const pev: Architecture = {
   color: "#10b981",
   paradigm: "deliberative",
   conceptualInsight: "Formal quality gate after every execution step. The verifier isn't just a second LLM opinion — it checks against the original plan. When a step fails, it loops back to re-plan with failure context before the synthesizer ever sees garbage data.",
+  a1a5Profile: {
+    a1input: "User goal — research or multi-step task requiring external tool calls",
+    a2decision: "Planner LLM creates step list; Verifier LLM judges each execution; re-plans with failure context on error",
+    a3memory: "Execution plan (shared across planner/executor/verifier); intermediate steps accumulate",
+    a4coordination: "Sequential validation pipeline with conditional re-plan loop (plan→execute→verify→[re-plan or continue])",
+    a5output: "Validated final output — synthesizer only receives verified, successful tool results",
+  },
   whenToUse: [
     { useCase: "Workflows with unreliable external tools", reason: "Verifier catches tool timeouts, empty results, and error strings before they propagate to synthesis." },
     { useCase: "Multi-step processes where early errors compound", reason: "Catch and retry at each step rather than detecting failure only at the end." },
@@ -38,12 +45,12 @@ export const pev: Architecture = {
     { name: "Reflection", insight: "Reflection critiques output quality after generation; PEV verifies execution success after each tool call — different stages, different failure modes." },
   ],
   nodes: [
-    { id: "start",       type: "start",     label: "START",       x: 200, y: 20 },
-    { id: "planner",     type: "a2decision", label: "Planner",     x: 200, y: 160, description: "A2 (Decision): creates the step list; re-plans with failure context if triggered" },
-    { id: "executor",    type: "a5output",   label: "Executor",    x: 200, y: 300, description: "A5 (Output): runs one step; may return error strings from flaky tools" },
-    { id: "verifier",    type: "a2decision", label: "Verifier",    x: 440, y: 300, description: "A2 (Decision): judges execution success; returns is_successful + reasoning" },
-    { id: "synthesizer", type: "a2decision", label: "Synthesizer", x: 200, y: 440, description: "A2 (Decision): combines all verified results into final answer" },
-    { id: "end",         type: "end",        label: "END",         x: 200, y: 560 },
+    { id: "start",       type: "start",  label: "START",       x: 200, y: 20 },
+    { id: "planner",     type: "llm",    label: "Planner",     x: 200, y: 160, description: "LLM: creates the step list; re-plans with failure context if triggered" },
+    { id: "executor",    type: "tool",   label: "Executor",    x: 200, y: 300, description: "Tool: runs one step; may return error strings from flaky tools" },
+    { id: "verifier",    type: "llm",    label: "Verifier",    x: 440, y: 300, description: "LLM: judges execution success; returns is_successful + reasoning" },
+    { id: "synthesizer", type: "llm",    label: "Synthesizer", x: 200, y: 440, description: "LLM: combines all verified results into final answer" },
+    { id: "end",         type: "end",    label: "END",         x: 200, y: 560 },
   ],
   edges: [
     { id: "e1", source: "start",       target: "planner" },

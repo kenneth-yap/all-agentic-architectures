@@ -16,6 +16,13 @@ export const reflection: Architecture = {
   color: "#6366f1",
   paradigm: "deliberative",
   conceptualInsight: "Mirrors the scientific method: hypothesis (generate) → falsification (critique) → revision (refine). No memory or tools required — quality emerges from structured self-assessment alone.",
+  a1a5Profile: {
+    a1input: "User prompt — text request for generation task",
+    a2decision: "LLM with 3-pass critique loop: Generator (Junior Dev) → Critic (Senior Engineer) → Refiner (Architect)",
+    a3memory: "In-context message history (draft and critique passed between nodes)",
+    a4coordination: "None — single-agent, no inter-agent routing",
+    a5output: "Final refined text response (code, prose, or analysis)",
+  },
   whenToUse: [
     { useCase: "Document or code generation", reason: "A quality threshold matters more than speed — the critique step catches errors before delivery." },
     { useCase: "Single-LLM quality improvement", reason: "No external data or tools needed — the same LLM critiques its own output from a different persona." },
@@ -37,11 +44,11 @@ export const reflection: Architecture = {
     { name: "Self-Improvement (RLHF)", insight: "Reflection does one fixed Critique→Refine pass; RLHF loops until a quality score is met and stores approved outputs as training data for future runs." },
   ],
   nodes: [
-    { id: "start",     type: "start",      label: "START",             x: 200, y: 20 },
-    { id: "generator", type: "a2decision",  label: "Generate\nDraft",   x: 200, y: 160, description: "A2 (Decision): Junior Dev persona — writes first draft from the request" },
-    { id: "critic",    type: "a2decision",  label: "Critique\nDraft",   x: 200, y: 300, description: "A2 (Decision): Senior Engineer persona — identifies bugs and inefficiencies" },
-    { id: "refiner",   type: "a2decision",  label: "Refine\nResponse",  x: 200, y: 440, description: "A2 (Decision): Architect persona — rewrites incorporating critique feedback" },
-    { id: "end",       type: "end",         label: "END",               x: 200, y: 560 },
+    { id: "start",     type: "start", label: "START",            x: 200, y: 20 },
+    { id: "generator", type: "llm",   label: "Generate\nDraft",  x: 200, y: 160, description: "LLM (Junior Dev persona): writes first draft from the request" },
+    { id: "critic",    type: "llm",   label: "Critique\nDraft",  x: 200, y: 300, description: "LLM (Senior Engineer persona): identifies bugs and inefficiencies" },
+    { id: "refiner",   type: "llm",   label: "Refine\nResponse", x: 200, y: 440, description: "LLM (Architect persona): rewrites incorporating critique feedback" },
+    { id: "end",       type: "end",   label: "END",              x: 200, y: 560 },
   ],
   edges: [
     { id: "e1", source: "start",     target: "generator" },

@@ -16,6 +16,13 @@ export const treeOfThoughts: Architecture = {
   color: "#f59e0b",
   paradigm: "emergent",
   conceptualInsight: "Correctness over creativity: the environment's rules, not the LLM, validate moves. Solutions are guaranteed correct (if BFS finds one) — a property no LLM-driven system can offer for deterministic problems. The 'thinking' is search, not language modeling.",
+  a1a5Profile: {
+    a1input: "Constraint puzzle — formal problem definition with deterministic rules (e.g. wolf-goat-cabbage)",
+    a2decision: "BFS expand-prune-check algorithm — no LLM; rule-based move generation and validation",
+    a3memory: "State tree — active frontier of BFS paths, each path a sequence of validated states",
+    a4coordination: "None — single algorithmic process; BFS loop is self-contained",
+    a5output: "Optimal solution path — guaranteed correct by rule validation, not LLM judgment",
+  },
   whenToUse: [
     { useCase: "Constraint satisfaction problems (puzzles, scheduling)", reason: "BFS guarantees finding the optimal solution if one exists — LLMs can't match this correctness guarantee." },
     { useCase: "Game-tree search with deterministic rules", reason: "Rule-based validation is faster and more reliable than LLM judgment for well-defined games." },
@@ -38,12 +45,12 @@ export const treeOfThoughts: Architecture = {
     { name: "Cellular Automata", insight: "Both are LLM-free search algorithms. Tree of Thoughts uses explicit BFS over symbolic states; Cellular Automata propagates a wave through a grid — same idea, different substrate." },
   ],
   nodes: [
-    { id: "start",  type: "start",     label: "START",            x: 200, y: 20 },
-    { id: "init",   type: "a2decision", label: "Initialize\nPaths",x: 200, y: 160, description: "A2 (Decision): create initial puzzle state, set active_paths to [[initial_state]]" },
-    { id: "expand", type: "a2decision", label: "BFS\nExpand",      x: 440, y: 300, description: "A2 (Decision): for each active path, generate all valid next states (BFS breadth-first)" },
-    { id: "prune",  type: "a2decision", label: "Prune\nCycles",    x: 200, y: 300, description: "A2 (Decision): remove paths containing cycles (state already visited in path)" },
-    { id: "check",  type: "a2decision", label: "Check\nSolution?", x: 200, y: 440, description: "A2 (Decision): any path reached goal state?" },
-    { id: "end",    type: "end",        label: "END",              x: 200, y: 560 },
+    { id: "start",  type: "start", label: "START",            x: 200, y: 20 },
+    { id: "init",   type: "rule",  label: "Initialize\nPaths",x: 200, y: 160, description: "Rule: create initial puzzle state, set active_paths to [[initial_state]]" },
+    { id: "expand", type: "rule",  label: "BFS\nExpand",      x: 440, y: 300, description: "Rule: for each active path, generate all valid next states (BFS breadth-first)" },
+    { id: "prune",  type: "rule",  label: "Prune\nCycles",    x: 200, y: 300, description: "Rule: remove paths containing cycles (state already visited in path)" },
+    { id: "check",  type: "rule",  label: "Check\nSolution?", x: 200, y: 440, description: "Rule: any path reached goal state?" },
+    { id: "end",    type: "end",   label: "END",              x: 200, y: 560 },
   ],
   edges: [
     { id: "e1", source: "start",  target: "init" },

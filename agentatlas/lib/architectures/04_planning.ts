@@ -16,6 +16,13 @@ export const planning: Architecture = {
   color: "#6366f1",
   paradigm: "deliberative",
   conceptualInsight: "Separates 'what to do' from 'how to do it'. The planner decomposes; the executor specializes. This is the LLM equivalent of a project manager + team: the plan survives first contact because both nodes share the same plan store.",
+  a1a5Profile: {
+    a1input: "User goal — complex multi-step task requiring decomposition",
+    a2decision: "LLM Planner creates complete step list upfront; Synthesizer aggregates all results into final answer",
+    a3memory: "Execution plan (shared state from planner → executor → synthesizer)",
+    a4coordination: "None — predefined sequential pipeline (plan→execute→synthesize)",
+    a5output: "Executor runs each plan step (tool calls) → Synthesizer produces final coherent answer",
+  },
   whenToUse: [
     { useCase: "Research with sequential dependencies", reason: "Decomposing into ordered steps reduces each step's complexity and makes progress visible." },
     { useCase: "Financial or multi-source reports", reason: "Multi-stage gather → synthesize workflows map cleanly to plan steps." },
@@ -38,11 +45,11 @@ export const planning: Architecture = {
     { name: "PEV", insight: "Planning has no verification loop — a failed step is passed to the synthesizer. PEV adds a dedicated verifier that catches failures and triggers a smarter re-plan." },
   ],
   nodes: [
-    { id: "start",       type: "start",     label: "START",       x: 200, y: 20 },
-    { id: "planner",     type: "a2decision", label: "Planner",     x: 200, y: 160, description: "A2 (Decision): creates the complete step list before any execution starts" },
-    { id: "executor",    type: "a5output",   label: "Executor",    x: 440, y: 160, description: "A5 (Output): pops one step off the plan, runs the tool, stores result; loops until plan is empty" },
-    { id: "synthesizer", type: "a2decision", label: "Synthesizer", x: 200, y: 300, description: "A2 (Decision): combines all tool results into a final coherent answer" },
-    { id: "end",         type: "end",        label: "END",         x: 200, y: 420 },
+    { id: "start",       type: "start", label: "START",       x: 200, y: 20 },
+    { id: "planner",     type: "llm",   label: "Planner",     x: 200, y: 160, description: "LLM: creates the complete step list before any execution starts" },
+    { id: "executor",    type: "tool",  label: "Executor",    x: 440, y: 160, description: "Tool: pops one step off the plan, runs the tool, stores result; loops until plan is empty" },
+    { id: "synthesizer", type: "llm",   label: "Synthesizer", x: 200, y: 300, description: "LLM: combines all tool results into a final coherent answer" },
+    { id: "end",         type: "end",   label: "END",         x: 200, y: 420 },
   ],
   edges: [
     { id: "e1", source: "start",       target: "planner" },

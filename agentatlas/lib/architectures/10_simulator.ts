@@ -16,6 +16,13 @@ export const simulator: Architecture = {
   color: "#ef4444",
   paradigm: "deliberative",
   conceptualInsight: "Test before you commit. Unlike Tree of Thoughts (BFS over rules), the simulation uses a stochastic model (GBM) that captures real-world uncertainty. The risk manager reads variance, not just expected value — the difference between 'average +15%' and 'worst case -30%'.",
+  a1a5Profile: {
+    a1input: "Market data + portfolio state — real-world state snapshot for simulation",
+    a2decision: "LLM analyst proposes strategy; simulation runs GBM; LLM risk manager refines after seeing all outcomes",
+    a3memory: "5 simulated market sandbox copies (forked from real state, run independently)",
+    a4coordination: "Sequential pipeline — propose→simulate→refine→execute (no inter-agent routing)",
+    a5output: "Risk-adjusted trade order executed on the real market state",
+  },
   whenToUse: [
     { useCase: "High-stakes irreversible actions (trading, infrastructure changes)", reason: "Cost of simulation is trivial compared to cost of a wrong live action." },
     { useCase: "Risk management before LLM-proposed strategies", reason: "LLM proposes optimistically; simulator quantifies the downside distribution." },
@@ -38,12 +45,12 @@ export const simulator: Architecture = {
     { name: "Tree of Thoughts", insight: "Tree of Thoughts uses BFS with rule validation for deterministic correctness; Simulator uses stochastic GBM for probabilistic risk assessment of open-ended decisions." },
   ],
   nodes: [
-    { id: "start",   type: "start",     label: "START",            x: 200, y: 20 },
-    { id: "propose", type: "a2decision", label: "Propose\nAction",  x: 200, y: 160, description: "A2 (Decision): analyst proposes a high-level trading strategy" },
-    { id: "simulate",type: "a2decision", label: "Run\nSimulations", x: 440, y: 160, description: "A2 (Decision): forks real market state into 5 copies, runs 10-day GBM on each" },
-    { id: "refine",  type: "a2decision", label: "Refine &\nDecide", x: 200, y: 300, description: "A2 (Decision): risk manager reads all 5 simulation outcomes, makes refined decision" },
-    { id: "execute", type: "a5output",   label: "Execute\nReal World",x: 200, y: 440, description: "A5 (Output): applies the refined, risk-adjusted decision to the actual market state" },
-    { id: "end",     type: "end",        label: "END",              x: 200, y: 560 },
+    { id: "start",    type: "start", label: "START",             x: 200, y: 20 },
+    { id: "propose",  type: "llm",   label: "Propose\nAction",   x: 200, y: 160, description: "LLM: analyst proposes a high-level trading strategy" },
+    { id: "simulate", type: "rule",  label: "Run\nSimulations",  x: 440, y: 160, description: "Rule (GBM): forks real market state into 5 copies, runs 10-day GBM on each" },
+    { id: "refine",   type: "llm",   label: "Refine &\nDecide",  x: 200, y: 300, description: "LLM: risk manager reads all 5 simulation outcomes, makes refined decision" },
+    { id: "execute",  type: "tool",  label: "Execute\nReal World",x: 200, y: 440, description: "Tool: applies the refined, risk-adjusted decision to the actual market state" },
+    { id: "end",      type: "end",   label: "END",               x: 200, y: 560 },
   ],
   edges: [
     { id: "e1", source: "start",    target: "propose" },

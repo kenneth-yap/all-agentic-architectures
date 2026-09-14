@@ -7,6 +7,14 @@ import { Architecture } from "@/lib/types";
 
 const FlowDiagram = dynamic(() => import("@/components/FlowDiagram"), { ssr: false });
 
+const A1A5_PROFILE_ROWS = [
+  { key: "a1input"        as const, label: "A1 Input",        icon: "📡", color: "text-sky-700"     },
+  { key: "a2decision"     as const, label: "A2 Decision",     icon: "🧠", color: "text-violet-700"  },
+  { key: "a3memory"       as const, label: "A3 Memory",       icon: "🗄️", color: "text-amber-700"   },
+  { key: "a4coordination" as const, label: "A4 Coordination", icon: "🔄", color: "text-teal-700"    },
+  { key: "a5output"       as const, label: "A5 Output",       icon: "⚡", color: "text-emerald-700" },
+];
+
 const METRICS = [
   { key: "controlFlow", label: "Control Flow" },
   { key: "loopType", label: "Loop Type" },
@@ -83,6 +91,35 @@ export default function ComparePage() {
             );
           })}
         </div>
+
+        {/* A1-A5 Profile comparison */}
+        {archA.a1a5Profile && archB.a1a5Profile && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-slate-800 mb-3">A1-A5 Architecture Profile</h2>
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+              <div className="grid grid-cols-[160px_1fr_1fr] bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <div className="px-4 py-3">Component</div>
+                <div className="px-4 py-3 text-indigo-700">{archA.name}</div>
+                <div className="px-4 py-3 text-emerald-700">{archB.name}</div>
+              </div>
+              {A1A5_PROFILE_ROWS.map(({ key, label, icon, color }) => {
+                const valA = archA.a1a5Profile![key];
+                const valB = archB.a1a5Profile![key];
+                const differ = valA !== valB;
+                return (
+                  <div key={key} className={`grid grid-cols-[160px_1fr_1fr] border-b border-slate-100 text-sm ${differ ? "bg-amber-50/40" : ""}`}>
+                    <div className={`px-4 py-3 flex items-center gap-1.5 font-semibold text-xs ${color}`}>
+                      <span>{icon}</span>
+                      <span>{label}</span>
+                    </div>
+                    <div className={`px-4 py-3 border-l border-slate-100 ${valA.startsWith("None") ? "text-slate-400 italic text-xs" : "text-indigo-900 text-xs"}`}>{valA}</div>
+                    <div className={`px-4 py-3 border-l border-slate-100 ${valB.startsWith("None") ? "text-slate-400 italic text-xs" : "text-emerald-900 text-xs"}`}>{valB}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Key differentiators */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

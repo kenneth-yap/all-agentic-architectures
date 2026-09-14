@@ -11,23 +11,25 @@ import {
 import "@xyflow/react/dist/style.css";
 import { Architecture, FlowNode, FlowEdge } from "@/lib/types";
 import {
-  A1InputNode,
-  A2DecisionNode,
-  A3MemoryNode,
-  A4CoordinationNode,
-  A5OutputNode,
+  LlmNode,
+  RuleNode,
+  ToolNode,
+  MemoryNode,
+  HumanNode,
+  ControllerNode,
   StartNode,
   EndNode,
 } from "./nodes/CustomNodes";
 
 const nodeTypes = {
-  a1input:        A1InputNode,
-  a2decision:     A2DecisionNode,
-  a3memory:       A3MemoryNode,
-  a4coordination: A4CoordinationNode,
-  a5output:       A5OutputNode,
-  start:          StartNode,
-  end:            EndNode,
+  llm:        LlmNode,
+  rule:       RuleNode,
+  tool:       ToolNode,
+  memory:     MemoryNode,
+  human:      HumanNode,
+  controller: ControllerNode,
+  start:      StartNode,
+  end:        EndNode,
 };
 
 interface Props {

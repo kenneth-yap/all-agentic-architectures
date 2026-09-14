@@ -16,6 +16,13 @@ export const toolUse: Architecture = {
   color: "#6366f1",
   paradigm: "deliberative",
   conceptualInsight: "Extends LLM capability beyond training data cutoff. The model decides what external information it needs, fetches it, and integrates it — acting as both planner and executor in a single node.",
+  a1a5Profile: {
+    a1input: "User query — natural language question (possibly requiring current information)",
+    a2decision: "LLM agent decides whether to call a tool or answer directly from its knowledge",
+    a3memory: "Message history (all tool results appended as ToolMessages in context)",
+    a4coordination: "None — single-agent, no inter-agent routing",
+    a5output: "Tool execution (TavilySearch) → final synthesized answer",
+  },
   whenToUse: [
     { useCase: "Tasks requiring real-time or external data", reason: "LLM alone can't access current prices, weather, or live databases — tools bridge the gap." },
     { useCase: "Multi-step information retrieval", reason: "Agent decides when to search and what to search for based on intermediate results." },
@@ -37,10 +44,10 @@ export const toolUse: Architecture = {
     { name: "ReAct", insight: "Tool Use calls tools when needed and synthesizes; ReAct explicitly interleaves Thought→Action→Observation, making the reasoning trace visible in the scratchpad." },
   ],
   nodes: [
-    { id: "start", type: "start",      label: "START",           x: 200, y: 20 },
-    { id: "agent", type: "a2decision",  label: "LLM\nAgent",      x: 200, y: 160, description: "A2 (Decision): decides whether to call a tool or answer directly from context" },
-    { id: "tool",  type: "a5output",    label: "Tool\nExecution", x: 440, y: 160, description: "A5 (Output): executes TavilySearch and returns result as ToolMessage back to agent" },
-    { id: "end",   type: "end",         label: "END",             x: 200, y: 300 },
+    { id: "start", type: "start", label: "START",           x: 200, y: 20 },
+    { id: "agent", type: "llm",   label: "LLM\nAgent",      x: 200, y: 160, description: "LLM: decides whether to call a tool or answer directly from context" },
+    { id: "tool",  type: "tool",  label: "Tool\nExecution", x: 440, y: 160, description: "Tool: executes TavilySearch and returns result as ToolMessage back to agent" },
+    { id: "end",   type: "end",   label: "END",             x: 200, y: 300 },
   ],
   edges: [
     { id: "e1", source: "start", target: "agent" },

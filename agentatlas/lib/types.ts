@@ -2,11 +2,12 @@ export type ControlFlow = "linear" | "conditional" | "parallel" | "emergent";
 export type LoopType = "none" | "fixed" | "reactive" | "iterative" | "bfs";
 export type MemoryType = "none" | "message_history" | "faiss+neo4j" | "neo4j" | "grid";
 export type NodeType =
-  | "a1input"
-  | "a2decision"
-  | "a3memory"
-  | "a4coordination"
-  | "a5output"
+  | "llm"
+  | "rule"
+  | "tool"
+  | "memory"
+  | "human"
+  | "controller"
   | "start"
   | "end";
 export type Paradigm =
@@ -52,6 +53,14 @@ export interface ComparedToItem {
   insight: string;
 }
 
+export interface A1A5Profile {
+  a1input: string;
+  a2decision: string;
+  a3memory: string;
+  a4coordination: string;
+  a5output: string;
+}
+
 export interface Architecture {
   id: string;
   number: number;
@@ -67,6 +76,7 @@ export interface Architecture {
   keyDifferentiator: string;
   paradigm: Paradigm;
   conceptualInsight: string;
+  a1a5Profile: A1A5Profile;
   whenToUse: WhenToUseItem[];
   strengths: string[];
   weaknesses: string[];
@@ -96,22 +106,13 @@ export const PART_COLORS: Record<number, string> = {
   5: "#8b5cf6",
 };
 
-export const A_COMPONENT_LABELS: Record<NodeType, string> = {
-  a1input: "A1 — Input",
-  a2decision: "A2 — Decision",
-  a3memory: "A3 — Memory",
-  a4coordination: "A4 — Coordination",
-  a5output: "A5 — Output",
-  start: "",
-  end: "",
-};
-
-export const A_COMPONENT_COLORS: Record<NodeType, { bg: string; border: string; badge: string; text: string }> = {
-  a1input:       { bg: "#f0f9ff", border: "#38bdf8", badge: "#0ea5e9", text: "#0c4a6e" },
-  a2decision:    { bg: "#f5f3ff", border: "#8b5cf6", badge: "#7c3aed", text: "#2e1065" },
-  a3memory:      { bg: "#fffbeb", border: "#fbbf24", badge: "#d97706", text: "#451a03" },
-  a4coordination:{ bg: "#f0fdfa", border: "#2dd4bf", badge: "#0d9488", text: "#042f2e" },
-  a5output:      { bg: "#f0fdf4", border: "#4ade80", badge: "#16a34a", text: "#052e16" },
-  start:         { bg: "#1e293b", border: "#475569", badge: "#1e293b", text: "#f8fafc" },
-  end:           { bg: "#1e293b", border: "#475569", badge: "#1e293b", text: "#f8fafc" },
+export const NODE_TYPE_LABELS: Record<NodeType, string> = {
+  llm:        "LLM",
+  rule:       "Rule",
+  tool:       "Tool",
+  memory:     "Memory",
+  human:      "Human",
+  controller: "Controller",
+  start:      "",
+  end:        "",
 };
