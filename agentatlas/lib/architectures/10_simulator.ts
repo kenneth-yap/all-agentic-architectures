@@ -11,7 +11,7 @@ export const simulator: Architecture = {
   memoryType: "none",
   toolUse: false,
   llmDriven: true,
-  llmCallsPerTask: "3",
+  llmCallsPerTask: "2",
   keyDifferentiator: "The only architecture that forks the environment state into multiple sandbox copies. An automated risk manager evaluates simulated outcomes before any real-world action is committed.",
   color: "#ef4444",
   paradigm: "deliberative",

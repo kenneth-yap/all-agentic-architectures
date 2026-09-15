@@ -11,7 +11,7 @@ export const metacognitive: Architecture = {
   memoryType: "none",
   toolUse: true,
   llmDriven: true,
-  llmCallsPerTask: "2–3",
+  llmCallsPerTask: "1–3",
   keyDifferentiator: "Only architecture with an explicit self-model as a first-class data structure. The agent formally reasons about what it DOESN'T know before answering — enabling principled escalation.",
   color: "#ef4444",
   paradigm: "bdi",
@@ -47,9 +47,9 @@ export const metacognitive: Architecture = {
   nodes: [
     { id: "start",     type: "start",      label: "START",               x: 250, y: 20 },
     { id: "analyze",   type: "llm",        label: "Metacognitive\nAnalysis",x: 250, y: 150, description: "LLM: reads self-model against query; produces strategy + confidence score" },
-    { id: "reason",    type: "llm",        label: "Reason\nDirectly",    x: 80,  y: 310, description: "LLM: high confidence (>0.7) — answer from knowledge" },
-    { id: "call_tool", type: "tool",       label: "Call\nTool",          x: 250, y: 310, description: "Tool: medium confidence (0.5–0.7) — execute a specialized tool" },
-    { id: "escalate",  type: "human",      label: "Escalate\nto Human",  x: 430, y: 310, description: "Human: low confidence (<0.5) — route to human expert" },
+    { id: "reason",    type: "llm",        label: "Reason\nDirectly",    x: 80,  y: 310, description: "LLM: strategy=reason_directly — answer from knowledge when confidence is high" },
+    { id: "call_tool", type: "tool",       label: "Call\nTool",          x: 250, y: 310, description: "Tool: strategy=use_tool — execute a specialized tool when confidence is medium" },
+    { id: "escalate",  type: "human",      label: "Escalate\nto Human",  x: 430, y: 310, description: "Human: strategy=escalate — route to human expert when confidence is low" },
     { id: "synthesize",type: "llm",        label: "Synthesize\nResult",  x: 250, y: 450, description: "LLM: converts raw tool output into a patient-facing response" },
     { id: "end",       type: "end",        label: "END",                 x: 250, y: 570 },
   ],
@@ -64,7 +64,7 @@ export const metacognitive: Architecture = {
     { id: "e8", source: "escalate",   target: "end" },
   ],
   demoInput: "I have crushing chest pain and my left arm feels numb",
-  demoOutput: "[ESCALATED] This symptom pattern requires immediate medical attention. Please call 911 or go to the nearest emergency room immediately. Do not drive yourself. These symptoms may indicate a cardiac emergency.",
+  demoOutput: "[ESCALATED] I am an AI assistant and not qualified to provide information on this topic. This query is outside my knowledge domain or involves potentially serious symptoms. Please consult a qualified medical professional immediately.",
   executionTrace: [
     {
       activeNodeId: "analyze",
@@ -72,10 +72,10 @@ export const metacognitive: Architecture = {
       stateSnapshot: {
         user_query: "I have crushing chest pain and my left arm feels numb",
         self_model: {
-          name: "MedicalTriageAgent",
+          name: "TriageBot-3000",
           knowledge_domain: ["symptom information", "general health education"],
           available_tools: ["DrugInteractionChecker"],
-          confidence_threshold: 0.7,
+          confidence_threshold: 0.6,
         },
       },
       explanation: "Agent reviews its self-model: it knows general health info but is NOT a doctor, has NO diagnostic tools, and has confidence_threshold=0.7. Chest pain + left arm numbness = potential cardiac emergency. Confidence in own ability to help: 0.10. Strategy: ESCALATE.",
@@ -107,7 +107,7 @@ class MetacognitiveAnalysis(BaseModel):
 
 def metacognitive_analysis_node(state: AgentState):
     self_model = state["self_model"]
-    prompt = f"""You are {self_model.name}.
+    prompt = f"""You are {self_model.name}.  # e.g. TriageBot-3000
 Your knowledge domain: {self_model.knowledge_domain}
 Your tools: {self_model.available_tools}
 Your confidence threshold: {self_model.confidence_threshold}

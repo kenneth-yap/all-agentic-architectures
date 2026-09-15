@@ -8,7 +8,7 @@ export const rlhf: Architecture = {
   tagline: "Generate → Critique → Revise until approved, then remember",
   controlFlow: "conditional",
   loopType: "iterative",
-  memoryType: "none",
+  memoryType: "message_history",
   toolUse: false,
   llmDriven: true,
   llmCallsPerTask: "2–6+ per run",
@@ -113,21 +113,28 @@ def should_continue(state: AgentState):
         return "save_to_memory"
     return "revise"`,
     generate: `class GoldStandardMemory:
-    """Stores approved emails as few-shot examples."""
+    """Stores approved emails as few-shot examples — updated OUTSIDE the graph."""
     approved_emails: List[MarketingEmail] = []
 
-    def add(self, email: MarketingEmail):
+    def add_example(self, email: MarketingEmail):
         self.approved_emails.append(email)
 
     def get_examples(self) -> str:
         return "\n\n".join([f"EXAMPLE:\nSubject: {e.subject}\n{e.body}"
                             for e in self.approved_emails])
 
-def generate_node_with_memory(state: AgentState):
-    examples = gold_memory.get_examples()
+gold_standard_memory = GoldStandardMemory()
+
+def generate_node(state: AgentState):
+    examples = gold_standard_memory.get_examples()
     prompt = f"""Write a marketing email.
 {f"Learn from these approved examples:{chr(10)}{examples}" if examples else ""}
 Task: {state['user_request']}"""
-    return {"draft_email": llm.with_structured_output(MarketingEmail).invoke(prompt)}`,
+    return {"draft_email": llm.with_structured_output(MarketingEmail).invoke(prompt)}
+
+# After the graph run completes — Gold Memory updated outside the graph:
+result = app.invoke({"user_request": state["user_request"]})
+if result["critique"].is_approved:
+    gold_standard_memory.add_example(result["draft_email"])`,
   },
 };

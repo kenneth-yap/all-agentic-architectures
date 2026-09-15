@@ -11,7 +11,7 @@ export const dryRun: Architecture = {
   memoryType: "none",
   toolUse: true,
   llmDriven: true,
-  llmCallsPerTask: "2",
+  llmCallsPerTask: "1",
   keyDifferentiator: "Unlike Simulator (automated risk analysis), Dry-Run inserts a mandatory human-in-the-loop gate. The system previews exactly what it would do before asking 'approve or reject?'",
   color: "#ef4444",
   paradigm: "deliberative",
@@ -84,7 +84,7 @@ export const dryRun: Architecture = {
   ],
   codeSnippets: {
     dry_run: `class SocialMediaAPI:
-    def publish_post(self, post: str, dry_run: bool = False) -> str:
+    def publish_post(self, post: SocialMediaPost, dry_run: bool = True) -> Dict[str, Any]:
         if dry_run:
             log = f"[DRY RUN] Would post to Twitter: '{post}'"
             console.print(Panel(log, title="Preview", border_style="yellow"))

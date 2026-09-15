@@ -87,7 +87,7 @@ export const episodicSemantic: Architecture = {
   codeSnippets: {
     retrieve: `def retrieve_memory(state: AgentState):
     # Episodic: vector similarity search
-    episodic_docs = faiss_store.similarity_search(state["user_input"], k=3)
+    episodic_docs = faiss_store.similarity_search(state["user_input"], k=2)
 
     # Semantic: structured Cypher query
     cypher = f"""MATCH (u:User {{name: 'Alex'}})-[r]->(e)
@@ -101,7 +101,7 @@ RETURN u.name, type(r), e.name"""
     update: `class KnowledgeGraph(BaseModel):
     relationships: List[Relationship]  # (subject, predicate, object) triples
 
-def create_memories(state: AgentState):
+def create_memories(user_input: str, assistant_output: str):
     # Episodic: summarize turn into one sentence → embed → store
     summary = llm.invoke(f"Summarize in one sentence: {state['user_input']}")
     faiss_store.add_texts([summary.content])

@@ -18,7 +18,7 @@ export const reflection: Architecture = {
   conceptualInsight: "Mirrors the scientific method: hypothesis (generate) → falsification (critique) → revision (refine). No memory or tools required — quality emerges from structured self-assessment alone.",
   a1a5Profile: {
     a1input: "User prompt — text request for generation task",
-    a2decision: "LLM with 3-pass critique loop: Generator (Junior Dev) → Critic (Senior Engineer) → Refiner (Architect)",
+    a2decision: "LLM with 3-pass critique loop: Generator (expert Python programmer) → Critic (expert code reviewer) → Refiner (expert Python programmer)",
     a3memory: "In-context message history (draft and critique passed between nodes)",
     a4coordination: "None — single-agent, no inter-agent routing",
     a5output: "Final refined text response (code, prose, or analysis)",
@@ -45,8 +45,8 @@ export const reflection: Architecture = {
   ],
   nodes: [
     { id: "start",     type: "start", label: "START",            x: 200, y: 20 },
-    { id: "generator", type: "llm",   label: "Generate\nDraft",  x: 200, y: 160, description: "LLM (Junior Dev persona): writes first draft from the request" },
-    { id: "critic",    type: "llm",   label: "Critique\nDraft",  x: 200, y: 300, description: "LLM (Senior Engineer persona): identifies bugs and inefficiencies" },
+    { id: "generator", type: "llm",   label: "Generate\nDraft",  x: 200, y: 160, description: "LLM (expert Python programmer persona): writes first draft from the request" },
+    { id: "critic",    type: "llm",   label: "Critique\nDraft",  x: 200, y: 300, description: "LLM (expert code reviewer persona): identifies errors and inefficiencies" },
     { id: "refiner",   type: "llm",   label: "Refine\nResponse", x: 200, y: 440, description: "LLM (Architect persona): rewrites incorporating critique feedback" },
     { id: "end",       type: "end",   label: "END",              x: 200, y: 560 },
   ],
@@ -74,7 +74,7 @@ export const reflection: Architecture = {
     {
       activeNodeId: "refiner",
       label: "Step 3 — Refine",
-      stateSnapshot: { user_request: "Write a Fibonacci function", draft: "def fib(n): ...", critique: { score: 4, issues: ["O(2^n) complexity", "no memoization"] }, refined_code: null },
+      stateSnapshot: { user_request: "Write a Fibonacci function", draft: "def fib(n): ...", critique: { has_errors: false, is_efficient: false, suggested_improvements: ["use iterative approach", "avoid recursion for large n"], critique_summary: "Correct but exponential time complexity" }, refined_code: null },
       explanation: "Architect rewrites to iterative O(n) solution with O(1) space — incorporating all critique feedback.",
     },
   ],
@@ -84,29 +84,31 @@ export const reflection: Architecture = {
     explanation: str
 
 def generator_node(state: ReflectionState):
-    prompt = f"""You are a Junior Developer.
+    prompt = f"""You are an expert Python programmer.
 Write Python code for: {state['user_request']}"""
     response = llm.with_structured_output(DraftCode).invoke(prompt)
     return {"draft": response}`,
     critic: `class Critique(BaseModel):
-    score: int  # 1-10
-    issues: List[str]
-    suggestions: List[str]
+    has_errors: bool
+    is_efficient: bool
+    suggested_improvements: List[str]
+    critique_summary: str
 
 def critic_node(state: ReflectionState):
-    prompt = f"""You are a Senior Engineer.
-Review this code and identify bugs/inefficiencies:
+    prompt = f"""You are an expert code reviewer and senior Python developer.
+Review this code and provide detailed critique:
 {state['draft'].code}"""
     response = llm.with_structured_output(Critique).invoke(prompt)
     return {"critique": response}`,
     refiner: `class RefinedCode(BaseModel):
-    code: str
-    improvements: List[str]
+    refined_code: str
+    refinement_summary: str
 
 def refiner_node(state: ReflectionState):
-    prompt = f"""Rewrite the code addressing these issues:
+    prompt = f"""You are an expert Python programmer tasked with refining a piece of code.
 Original: {state['draft'].code}
-Issues: {state['critique'].issues}"""
+Critique: {state['critique'].critique_summary}
+Improvements: {state['critique'].suggested_improvements}"""
     response = llm.with_structured_output(RefinedCode).invoke(prompt)
     return {"refined_code": response}`,
   },

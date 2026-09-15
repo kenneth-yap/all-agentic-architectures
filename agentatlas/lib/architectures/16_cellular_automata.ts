@@ -67,7 +67,7 @@ export const cellularAutomata: Architecture = {
       stateSnapshot: {
         grid: "7x7 initialized",
         packing_station: [5, 3],
-        shelves: { A: [3, 0], B: [0, 3], C: [6, 1], D: [1, 6] },
+        shelves: { A: [3, 0], B: [4, 5], C: [3, 3], D: [1, 2] },
         obstacles: [[2, 2], [2, 3], [3, 4], [4, 4]],
       },
       explanation: "Grid created. Packing station P at (5,3) gets value=0. All other cells get value=∞. Obstacles are impassable.",
@@ -96,40 +96,54 @@ export const cellularAutomata: Architecture = {
     type: str  # EMPTY | OBSTACLE | SHELF | PACKING_STATION
     pathfinding_value: float = float('inf')
 
-    def update_value(self, neighbors: List["CellAgent"]) -> bool:
-        if self.type == "OBSTACLE": return False
-        reachable = [n for n in neighbors if n.type != "OBSTACLE"]
-        if not reachable: return False
-        new_value = min(n.pathfinding_value for n in reachable) + 1
-        if new_value < self.pathfinding_value:
-            self.pathfinding_value = new_value
-            return True  # changed
-        return False
+    def update_value(self, neighbors: List['CellAgent']) -> float:
+        if self.type == 'OBSTACLE':
+            return float('inf')
+        min_neighbor_value = float('inf')
+        for neighbor in neighbors:
+            if neighbor.pathfinding_value < min_neighbor_value:
+                min_neighbor_value = neighbor.pathfinding_value
+        return min(self.pathfinding_value, min_neighbor_value + 1)
 
-def tick(grid: WarehouseGrid) -> bool:
+def tick(self) -> bool:
     """One synchronous update of all cells. Returns True if any changed."""
+    new_values = np.empty((self.height, self.width))
     changed = False
-    for row in range(grid.height):
-        for col in range(grid.width):
-            neighbors = grid.get_neighbors(row, col)
-            if grid.cells[row][col].update_value(neighbors):
+    for r in range(self.height):
+        for c in range(self.width):
+            neighbors = self.get_neighbors(r, c)
+            new_values[r, c] = self.grid[r, c].update_value(neighbors)
+    for r in range(self.height):
+        for c in range(self.width):
+            if self.grid[r, c].pathfinding_value != new_values[r, c]:
+                self.grid[r, c].pathfinding_value = new_values[r, c]
                 changed = True
     return changed`,
     trace: `def propagate_path_wave(grid, target_pos):
     # Set target to 0, run ticks until stable
-    grid.cells[target_pos[0]][target_pos[1]].pathfinding_value = 0
-    while tick(grid):  # repeat until no changes
+    grid.grid[target_pos[0]][target_pos[1]].pathfinding_value = 0
+    while grid.tick():  # repeat until no changes
         pass
 
 def trace_and_move_item(grid, start_pos):
     path = [start_pos]
-    current = start_pos
-    while not grid.cells[current[0]][current[1]].type == "PACKING_STATION":
-        neighbors = grid.get_neighbors(current[0], current[1])
-        # Greedy descent: move to lowest-value neighbor
-        next_cell = min(neighbors, key=lambda n: n.pathfinding_value)
-        current = next_cell.position
-        path.append(current)
+    r, c = start_pos
+    while grid.grid[r, c].pathfinding_value > 0:
+        neighbors = grid.get_neighbors(r, c)
+        best_neighbor_pos = None
+        min_val = grid.grid[r, c].pathfinding_value
+        for neighbor_cell in neighbors:
+            pos_list = np.where(grid.grid == neighbor_cell)
+            if len(pos_list[0]) > 0:
+                nr, nc = pos_list[0][0], pos_list[1][0]
+                if neighbor_cell.pathfinding_value < min_val:
+                    min_val = neighbor_cell.pathfinding_value
+                    best_neighbor_pos = (nr, nc)
+        if best_neighbor_pos:
+            path.append(best_neighbor_pos)
+            r, c = best_neighbor_pos
+        else:
+            break
     return path`,
   },
 };

@@ -109,7 +109,7 @@ for doc in documents:
     kg = graph_maker_agent.invoke({"text": doc})
     graph.add_graph_documents([...kg.relationships])`,
     cypher_gen: `def query_graph(question: str) -> str:
-    schema = graph.get_schema  # Neo4j schema introspection
+    schema = graph.schema  # Neo4j schema introspection
 
     # Step 1: NL → Cypher
     cypher = (cypher_generation_prompt | llm).invoke({
@@ -123,7 +123,7 @@ for doc in documents:
     # Step 3: Cypher results → NL
     answer = (cypher_response_prompt | llm).invoke({
         "question": question,
-        "results": results
+        "context": context
     }).content
     return answer`,
   },
